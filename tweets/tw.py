@@ -9,7 +9,7 @@ import json
 from tuiteros import *
 
 client = MongoClient('localhost', 27017)
-db = client['taller3']
+db = client['taller4']
 collection_tweets = db['tweets']
 
 # load from file:
