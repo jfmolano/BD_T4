@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # In this example follow #programming tag
     # For more details refer to https://dev.twitter.com/docs/streaming-apis
     stream = tweepy.Stream(auth, l)
-    lista_filtro = ['paz','impuestos','plebiscito']
+    lista_filtro = []
     lista_tuiteros = get_tuiteros()
     lista_filtro = lista_filtro + lista_tuiteros
     stream.filter(track=lista_filtro)
