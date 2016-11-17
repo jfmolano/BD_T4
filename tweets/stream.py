@@ -15,10 +15,11 @@ consumer_key = conf["consumer_key"]
 consumer_secret = conf["consumer_secret"]
 access_token = conf["access_key"]
 access_token_secret = conf["access_secret"]
+ip_mongo = conf["ip_mongo"]
 
-client = MongoClient('localhost', 27017)
-db = client['taller4']
-collection_tweets = db['tweets']
+client = MongoClient(ip_mongo, 27017)
+db = client['Grupo03']
+collection_tweets = db['tweets_taller4']
 
 # This is the listener, resposible for receiving data
 class StdOutListener(tweepy.StreamListener):
@@ -29,7 +30,10 @@ class StdOutListener(tweepy.StreamListener):
         # Also, we convert UTF-8 to ASCII ignoring all bad characters sent by users
         print '@%s: %s' % (decoded['user']['screen_name'], decoded['text'].encode('ascii', 'ignore'))
         print ''
-        collection_tweets.insert(decoded)
+	try:
+        	collection_tweets.insert(decoded)
+	except:
+		print "error"
         return True
 
     def on_error(self, status):

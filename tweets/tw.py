@@ -8,10 +8,6 @@ from pymongo import MongoClient
 import json
 from tuiteros import *
 
-client = MongoClient('localhost', 27017)
-db = client['taller4']
-collection_tweets = db['tweets']
-
 # load from file:
 with open('conf.json', 'r') as f:
     try:
@@ -23,7 +19,11 @@ consumer_key = conf["consumer_key"]
 consumer_secret = conf["consumer_secret"]
 access_key = conf["access_key"]
 access_secret = conf["access_secret"]
+ip_mongo = conf["ip_mongo"]
 
+client = MongoClient(ip_mongo, 27017)
+db = client['Grupo03']
+collection_tweets = db['tweets_taller4']
 
 def get_all_tweets(screen_name):
 	#Twitter only allows access to a users most recent 3240 tweets with this method
