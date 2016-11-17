@@ -66,8 +66,8 @@ def get_all_tweets(screen_name):
 		print tweet._json
 		try:
 			collection_tweets.insert(tweet._json)
-		except:
-			print "Error tuit"
+		except Exception as inst:
+			print inst
 	pass
 
 
