@@ -64,7 +64,10 @@ def get_all_tweets(screen_name):
 	for tweet in alltweets:
 		print "tuit insertado.."
 		print tweet._json
-		collection_tweets.insert(tweet._json)
+		try:
+			collection_tweets.insert(tweet._json)
+		except:
+			print "Error tuit"
 	pass
 
 
