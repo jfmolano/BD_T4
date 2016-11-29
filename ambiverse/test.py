@@ -23,6 +23,7 @@ headers = {
     }
 
 response = requests.request("POST", url, data=data, headers=headers)
+print response.text
 
 token = ast.literal_eval(response.text)["access_token"]
 
@@ -53,4 +54,16 @@ response = requests.request("POST", url, data=data, headers=headers)
 matches = ast.literal_eval(response.text)["matches"]
 
 for m in matches:
-	print m["entity"]["id"]
+	entidad_id = m["entity"]["id"]
+	url = "https://api.ambiverse.com/v1beta3/knowledgegraph/entities?offset=0&limit=10"
+	data = "[\""+entidad_id+"\"]"
+
+	headers = {
+	    'Content-Type': "application/json",
+	    'Accept': "application/json",
+	    'Authorization': token
+	    }
+
+	response = requests.request("POST", url, data=data, headers=headers)
+
+	print response.text
