@@ -7,6 +7,8 @@ import json
 def get_entities(texto):
 	url = "https://api.ambiverse.com/v1beta3/entitylinking/analyze"
 
+	texto = texto.replace("\"","")
+
 	data = "{"+ \
 	  "\"coherentDocument\": true,"+  \
 	  "\"confidenceThreshold\": 0.075,"+ \
@@ -24,6 +26,8 @@ def get_entities(texto):
 	    }
 
 	response = requests.request("POST", url, data=data, headers=headers)
+
+	print response.text
 
 	matches = ast.literal_eval(response.text)["matches"]
 
@@ -74,10 +78,36 @@ token = ast.literal_eval(response.text)["access_token"]
 
 ## analyze - get entities
 
-list_entities = get_entities("Colombia, U.S., Russia, France, Belarouse, Wales, England, Tripoli, Asia, Sahara, Antartica, Andes and Barranquilla")
+#list_entities = get_entities("Colombia, U.S., Russia, France, Belarouse, Wales, England, Tripoli, Asia, Sahara, Antartica, Andes and Barranquilla")
+
+#list_sets = []
+#for i in list_entities:
+#	list_sets.append(set(i["entities"][0]["categories"]))
+
+#print reduce(lambda x, y: x & y, list_sets)
+
+
+#list_entities = get_entities("Brad Pitt, Angelina Jolie, Hitler and Stephen Hawking were married")
 
 list_sets = []
+#for i in list_entities:
+#	list_sets.append(set(i["entities"][0]["categories"]))
+
+#print reduce(lambda x, y: x & y, list_sets)
+
+list_entities = get_entities("Republican party, Nazi party, Greenpeace")
+
+#print list_entities[0]["entities"][0]["description"]
+
+#text = list_entities[0]["entities"][0]["description"]
+
+#print text
+
+#list_entities = get_entities(text)
+
 for i in list_entities:
+	print " "
+	print i
 	list_sets.append(set(i["entities"][0]["categories"]))
 
 print reduce(lambda x, y: x & y, list_sets)

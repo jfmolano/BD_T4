@@ -1,4 +1,4 @@
 from geopy.geocoders import Nominatim
 geolocator = Nominatim()
-location = geolocator.geocode("Bogota")
+location = geolocator.geocode("Taylor Swift")
 print (location.latitude, location.longitude)
