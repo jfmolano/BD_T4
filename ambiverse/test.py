@@ -74,6 +74,10 @@ token = ast.literal_eval(response.text)["access_token"]
 
 ## analyze - get entities
 
-list_entities = get_entities("When Who played Tommy in Columbus, Pete was at his best.")
+list_entities = get_entities("Colombia, U.S., Russia, France, Belarouse, Wales, England, Tripoli, Asia, Sahara, Antartica, Andes and Barranquilla")
 
-print list_entities
+list_sets = []
+for i in list_entities:
+	list_sets.append(set(i["entities"][0]["categories"]))
+
+print reduce(lambda x, y: x & y, list_sets)
