@@ -112,7 +112,7 @@ def get_token():
 
 token = get_token()
 
-question = "Brad Pitt visited Angelina Jolie and they traveled to Africa."
+question = "This is the John Travolta vehicle, Phenomenon (1996)"
 
 list_entities = get_entities(question)
 
