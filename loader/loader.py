@@ -1,5 +1,6 @@
 from dateutil.parser import parse
 from pymongo import MongoClient
+import json
 
 with open('conf.json', 'r') as f:
     try:
@@ -13,8 +14,8 @@ client = MongoClient(ip_mongo, 27017)
 db = client['Grupo03']
 collection_actores = db['actores_taller4']
 
-#with open("/home/pi/biographies.list") as f:
-with open("out.list") as f:
+with open("/home/pi/biographies.list") as f:
+#with open("out.list") as f:
     rn = None
     db = None
     dd = None
