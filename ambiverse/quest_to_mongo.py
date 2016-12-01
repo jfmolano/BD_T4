@@ -3,6 +3,7 @@
 import requests
 import ast
 import json
+from pymongo import MongoClient
 from geopy.geocoders import Nominatim
 
 ## get token
@@ -37,7 +38,7 @@ def get_simple_entities(texto):
 def get_entities(texto):
 	url = "https://api.ambiverse.com/v1beta3/entitylinking/analyze"
 
-	texto = texto.replace("\"","")
+	texto = texto.replace("\"","").replace("\n"," ")
 
 	data = "{"+ \
 	  "\"coherentDocument\": true,"+  \
@@ -55,9 +56,11 @@ def get_entities(texto):
 	    'Authorization': token
 	    }
 
+	#print data
+
 	response = requests.request("POST", url, data=data, headers=headers)
 
-	##print response.text
+	#print response.text
 
 	matches = ast.literal_eval(response.text)["matches"]
 
@@ -112,7 +115,25 @@ def get_token():
 
 token = get_token()
 
-question = "This is the John Travolta vehicle, Phenomenon (1996)"
+with open('conf.json', 'r') as f:
+    try:
+        conf = json.load(f)
+    except ValueError:
+        conf = {}
+
+ip_mongo = conf["ip_mongo"]
+
+client = MongoClient(ip_mongo, 27017)
+db = client['Grupo03']
+collection_questions = db['preguntas_taller4']
+
+questions = collection_questions.find({}).limit(1)
+
+question = questions[0]
+
+#print question
+
+question = question["description"]
 
 list_entities = get_entities(question)
 
@@ -152,7 +173,7 @@ for i in list_entities:
 			#End of semantic enrichment
 
 			#Object generation
-			obj = {"id":id_entity,"geometry":{"lat":lat,"lon":lon}}
+			obj = {"type":1,"id":id_entity,"geometry":{"lat":lat,"lon":lon}}
 			list_question_entities.append(obj)
 
 		elif "YAGO3:<wordnet_person_100007846>" in categories_set:
@@ -195,6 +216,12 @@ for i in list_entities:
 
 			#Object generation
 			obj = {"type":1,"id":id_entity,"enrichment":enrichment_items}
+			list_question_entities.append(obj)
+
+		else:
+
+			id_entity = i["id"].replace("YAGO3:<","").replace(">","")
+			obj = {"type":3,"id":id_entity}
 			list_question_entities.append(obj)
 
 for i in list_question_entities:
