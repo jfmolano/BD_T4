@@ -16,7 +16,7 @@ collection_preguntas = db['preguntas_taller4']
 
 wb=load_workbook("../../Movie Stack Exchange.xlsx")
 ws=wb.active
-cell_range = ws['A151':'J200']
+cell_range = ws['A1':'J150']
 
 for row in cell_range:
 	print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
