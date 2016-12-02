@@ -59,7 +59,7 @@ $(document).ready(function() {
         var data_json = JSON.parse(data)
         console.log("data: ")
         console.log(data_json)
-        var map = L.map('mapid').setView([42.35, -71.08], 1);
+        var map = L.map('mapid').setView([30, 0], 2);
               // load a tile layer
               L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 {
@@ -70,6 +70,7 @@ $(document).ready(function() {
            {
              "name": "test",
              "desc": "desc",
+             "entities": ["e1","e2","e3"],
              "lat": 56.130366,
              "lng": -106.346771
            }
@@ -80,8 +81,14 @@ $(document).ready(function() {
         //}
 
         for ( var i=0; i < markers.length; ++i ){
+            entities_list = markers[i].entities
+            var e_list = "<ul>"
+            for ( var j=0; j < entities_list.length; ++j ){
+                e_list = e_list+"<li>"+entities_list[i]+"</li>"
+            }
+            e_list = e_list + "</ul>"
            L.marker( [markers[i].lat, markers[i].lng] )
-              .bindPopup( markers[i].name + "<br>" + markers[i].desc)
+              .bindPopup( markers[i].name + "<br>" + markers[i].desc + "<br>" + e_list)
               .addTo( map );
         }
     });
