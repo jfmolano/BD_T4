@@ -9,8 +9,8 @@ $(document).ready(function() {
     url: url_get_consulta1
     }).then(function(data) {
         var data_json = JSON.parse(data)
-        console.log("data: ")
-        console.log(data_json)
+        //console.log("data: ")
+        //console.log(data_json)
         $.each(data_json, function (i, item) {
             console.log(item)
 
@@ -50,11 +50,11 @@ $(document).ready(function() {
         });
     });
 
-    url_get_consulta2 = "http://localhost:8080/info_preguntas"
+    url_get_consulta2 = "http://localhost:8080/info_georef"
     console.log("url_get_consulta2")
     $.ajax({
     type: "GET",
-    url: url_get_consulta1
+    url: url_get_consulta2
     }).then(function(data) {
         var data_json = JSON.parse(data)
         console.log("data: ")
@@ -68,27 +68,20 @@ $(document).ready(function() {
                 }).addTo(map);
         markers = [
            {
-             "name": "Canada",
-             "url": "https://en.wikipedia.org/wiki/Canada",
+             "name": "test",
+             "desc": "desc",
              "lat": 56.130366,
              "lng": -106.346771
-           },
-           {
-             "name": "Anguilla",
-             "url": "https://en.wikipedia.org/wiki/Anguilla",
-             "lat": 18.220554,
-             "lng": -63.068615
-           },
-           {
-             "name": "Why is The Punisher's “declaration of intent” missing from the German version? Why is The Punisher's “declaration of intent” missing from the German version?",
-             "url": "https://en.wikipedia.org/wiki/Japan",
-             "lat": 36.204824,
-             "lng": 138.252924
            }
         ];
+
+        //for ( var i=0; i < markers.data_json; ++i ){
+        //   markers.push({})
+        //}
+
         for ( var i=0; i < markers.length; ++i ){
            L.marker( [markers[i].lat, markers[i].lng] )
-              .bindPopup( '<a href="' + markers[i].url + '" target="_blank">' + markers[i].name + '</a>' )
+              .bindPopup( markers[i].name + "<br>" + markers[i].desc)
               .addTo( map );
         }
     });

@@ -67,6 +67,13 @@ def info_preguntas():
 	l = list(resultado)
 	return dumps(l), 201
 
+@app.route('/info_georef', methods=['GET'])
+def info_georef():
+	print "Entra a servicio"
+	resultado = p_e_collection.aggregate([{"$unwind":"$entities"},{"$match":{"entities.geometry":{"$exists":True},"entities.enrichment":{"$exists":True}}}])
+	l = list(resultado)
+	return dumps(l), 201
+
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
