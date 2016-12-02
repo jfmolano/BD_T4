@@ -12,7 +12,7 @@ $(document).ready(function() {
         //console.log("data: ")
         //console.log(data_json)
         $.each(data_json, function (i, item) {
-            console.log(item)
+            //console.log(item)
 
             var e_list = "<ul>"
             $.each(item['entities'], function (j, jtem) {
@@ -70,25 +70,42 @@ $(document).ready(function() {
            {
              "name": "test",
              "desc": "desc",
+             "ans": "ans",
              "entities": ["e1","e2","e3"],
-             "lat": 56.130366,
-             "lng": -106.346771
+             "lat": -10,
+             "lng": -10
            }
         ];
 
-        //for ( var i=0; i < markers.data_json; ++i ){
-        //   markers.push({})
-        //}
+        for ( var i=0; i < data_json.length; ++i ){
+            var entities_l = []
+            var rest_entities_l = data_json[i].entities.enrichment
+            for ( var j=0; j < rest_entities_l.length; ++j ){
+                entities_l.push(data_json[i].entities.enrichment[j].id)
+            }
+           var obj = {
+             "name": data_json[i].entities.id,
+             "desc": data_json[i].question,
+             "ans": data_json[i].answer_1,
+             "entities": entities_l,
+             "lat": data_json[i].entities.geometry.lat,
+             "lng": data_json[i].entities.geometry.lon
+           }
+           console.log(obj)
+           if(obj.lat!=0 && obj.lon!=0){
+           markers.push(obj)
+            }
+        }
 
         for ( var i=0; i < markers.length; ++i ){
             entities_list = markers[i].entities
             var e_list = "<ul>"
             for ( var j=0; j < entities_list.length; ++j ){
-                e_list = e_list+"<li>"+entities_list[i]+"</li>"
+                e_list = e_list+"<li>"+entities_list[j]+"</li>"
             }
             e_list = e_list + "</ul>"
-           L.marker( [markers[i].lat, markers[i].lng] )
-              .bindPopup( markers[i].name + "<br>" + markers[i].desc + "<br>" + e_list)
+           L.marker( [markers[i].lat+(Math.random()-0.5)*0.05, markers[i].lng+(Math.random()-0.5)*0.05] )
+              .bindPopup( markers[i].name + "<br><br>" + markers[i].desc + "<br><br>" + markers[i].ans + "<br><br>" + e_list)
               .addTo( map );
         }
     });
