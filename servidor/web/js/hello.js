@@ -34,6 +34,7 @@ $(document).ready(function() {
                 tag_1 = item['tag_1']
                 tag_2 = item['tag_2']
                 tag_3 = item['tag_3']
+                
                 if (tag_1 != null){
                     tags_list = tags_list+"<li>"+tag_1+"</li>"
                 }
