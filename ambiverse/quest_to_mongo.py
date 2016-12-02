@@ -27,7 +27,7 @@ def get_simple_entities(texto):
 	  "\"language\": \"en\""+ \
 	"}"
 
-	##print data
+	#print data
 
 	headers = {
 	    'Content-Type': "application/json",
@@ -44,7 +44,7 @@ def get_simple_entities(texto):
 def get_entities(texto):
 	url = "https://api.ambiverse.com/v1beta3/entitylinking/analyze"
 
-	texto = texto.replace("\"","").replace("\n"," ").replace("(","").replace(")","").replace("\'"," ").replace("\\"," ")
+	texto = texto.replace("\"","").replace("\n"," ").replace("(","").replace(")","").replace("\'"," ").replace("\t"," ").replace("\r"," ").replace("\\"," ").replace("]","").replace("[","").replace("/","").replace("—","")
 	#texto = "Brad Pitt is gay"
 
 	data = "{"+ \
@@ -55,7 +55,7 @@ def get_entities(texto):
 	  "\"language\": \"en\""+ \
 	"}"
 
-	##print data
+	#print data
 
 	headers = {
 	    'Content-Type': "application/json",
@@ -113,7 +113,7 @@ def get_token():
 	    }
 
 	response = requests.request("POST", url, data=data, headers=headers)
-
+	#print response.text
 	return ast.literal_eval(response.text)["access_token"]
 
 ###
@@ -137,125 +137,126 @@ collection_questions = db['preguntas_taller4']
 collection_entities = db['entidades_taller4']
 collection_questions_w_entities = db['preguntas_entidades_taller4']
 
-questions = collection_questions.find({},{"_id":False}).skip(18)
+questions = collection_questions.find({},{"_id":False}).skip(215)
 
 counter = 0
 start_time = time.time()
 
 for question in questions:
+	try:
+		#print question
 
-	#print question
+		question_description = question["description"]
+		question_answer_1 = question["answer_1"]
 
-	question_description = question["description"]
-	question_answer_1 = question["answer_1"]
+		if question_answer_1 != None:
+			text = question_description + " " + question_answer_1
+		else:
+			text = question_description
+		#print text
+		list_entities = get_entities(text)
 
-	if question_answer_1 != None:
-		text = question_description + " " + question_answer_1
-	else:
-		text = question_description
-	#print text
-	list_entities = get_entities(text)
+		list_question_entities = []
 
-	list_question_entities = []
-
-	#print " "
-	for i in list_entities:
-		if "categories" in i:
-			categories_set = set(i["categories"])
-			#print i["id"]
-			if "YAGO3:<yagoPermanentlyLocatedEntity>" in categories_set:
-				id_entity = i["id"].replace("YAGO3:<","").replace(">","")
-				text_geolocator = id_entity.replace("_"," ")
-				geolocator = Nominatim()
-				try:
-					location = geolocator.geocode(text_geolocator)
-					lon = location.longitude
-					lat = location.latitude
-				except:
-					lon = 0
-					lat = 0
-				#Semantic enrichment
-				enrichment_items = []
-				if "description" in i:
-					description = i["description"]
-					list_description_entities = get_entities(description)
-					#print list_description_entities
+		#print " "
+		for i in list_entities:
+			if "categories" in i:
+				categories_set = set(i["categories"])
+				#print i["id"]
+				if "YAGO3:<yagoPermanentlyLocatedEntity>" in categories_set:
+					id_entity = i["id"].replace("YAGO3:<","").replace(">","")
+					text_geolocator = id_entity.replace("_"," ")
+					geolocator = Nominatim()
+					try:
+						location = geolocator.geocode(text_geolocator)
+						lon = location.longitude
+						lat = location.latitude
+					except:
+						lon = 0
+						lat = 0
+					#Semantic enrichment
 					enrichment_items = []
-					for j in list_description_entities:
-						if "categories" in j:
-							id_entity_se = j["id"].replace("YAGO3:<","").replace(">","")
-
-							#Object generation
-							obj = {"type":2,"id":id_entity_se}
-							enrichment_items.append(obj)
-
-					#End of semantic enrichment
-
-				#Object generation
-				obj = {"type":1,"id":id_entity,"geometry":{"lat":lat,"lon":lon},"enrichment":enrichment_items}
-				list_question_entities.append(obj)
-
-			elif "YAGO3:<wordnet_person_100007846>" in categories_set:
-
-				id_entity = i["id"].replace("YAGO3:<","").replace(">","")
-
-				#Semantic enrichment
-				enrichment_items = []
-				if "description" in i:
-					description = i["description"]
-					list_description_entities = get_entities(description)
-					#print list_description_entities
-					enrichment_items = []
-					for j in list_description_entities:
-						if "categories" in j:
-							categories_set = set(j["categories"])
-							if "YAGO3:<yagoPermanentlyLocatedEntity>" in categories_set:
-								id_entity_se = j["id"].replace("YAGO3:<","").replace(">","")
-								text_geolocator = id_entity_se.replace("_"," ")
-								geolocator = Nominatim()
-								try:
-									location = geolocator.geocode(text_geolocator)
-									lon_entity = location.longitude
-									lat_entity = location.latitude
-								except:
-									lon_entity = 0
-									lat_entity = 0
-
-								#Object generation
-								obj = {"type":2,"id":id_entity_se,"geometry":{"lat":lat_entity,"lon":lon_entity}}
-								enrichment_items.append(obj)
-
-							else:
+					if "description" in i:
+						description = i["description"]
+						list_description_entities = get_entities(description)
+						#print list_description_entities
+						enrichment_items = []
+						for j in list_description_entities:
+							if "categories" in j:
 								id_entity_se = j["id"].replace("YAGO3:<","").replace(">","")
 
 								#Object generation
 								obj = {"type":2,"id":id_entity_se}
 								enrichment_items.append(obj)
 
-				#End of semantic enrichment
+						#End of semantic enrichment
 
-				#Object generation
-				obj = {"type":1,"id":id_entity,"enrichment":enrichment_items}
-				list_question_entities.append(obj)
+					#Object generation
+					obj = {"type":1,"id":id_entity,"geometry":{"lat":lat,"lon":lon},"enrichment":enrichment_items}
+					list_question_entities.append(obj)
 
-			else:
+				elif "YAGO3:<wordnet_person_100007846>" in categories_set:
 
-				id_entity = i["id"].replace("YAGO3:<","").replace(">","")
-				obj = {"type":3,"id":id_entity}
-				list_question_entities.append(obj)
+					id_entity = i["id"].replace("YAGO3:<","").replace(">","")
 
-	for i in list_question_entities:
-		#print i
-		#print " "
-		collection_entities.insert(i)
+					#Semantic enrichment
+					enrichment_items = []
+					if "description" in i:
+						description = i["description"]
+						list_description_entities = get_entities(description)
+						#print list_description_entities
+						enrichment_items = []
+						for j in list_description_entities:
+							if "categories" in j:
+								categories_set = set(j["categories"])
+								if "YAGO3:<yagoPermanentlyLocatedEntity>" in categories_set:
+									id_entity_se = j["id"].replace("YAGO3:<","").replace(">","")
+									text_geolocator = id_entity_se.replace("_"," ")
+									geolocator = Nominatim()
+									try:
+										location = geolocator.geocode(text_geolocator)
+										lon_entity = location.longitude
+										lat_entity = location.latitude
+									except:
+										lon_entity = 0
+										lat_entity = 0
 
-	question["entities"] = list_question_entities
-	collection_questions_w_entities.insert(question)
+									#Object generation
+									obj = {"type":2,"id":id_entity_se,"geometry":{"lat":lat_entity,"lon":lon_entity}}
+									enrichment_items.append(obj)
 
-	counter = counter+1
-	progreso = counter/150.0
-	t_act = time.time() - start_time
-	t_res = (1.0/progreso - 1.0)*t_act
-	print "Porcentaje: "+str(progreso*100.0)+" %"+" Restante: "+str(int(t_res/3600))+":"+str(int(t_res/60)%60)+":"+str(int(t_res)%60) + " Actual: "+str(int(t_act/3600))+":"+str(int(t_act/60)%60)+":"+str(int(t_act)%60)
+								else:
+									id_entity_se = j["id"].replace("YAGO3:<","").replace(">","")
 
+									#Object generation
+									obj = {"type":2,"id":id_entity_se}
+									enrichment_items.append(obj)
+
+					#End of semantic enrichment
+
+					#Object generation
+					obj = {"type":1,"id":id_entity,"enrichment":enrichment_items}
+					list_question_entities.append(obj)
+
+				else:
+
+					id_entity = i["id"].replace("YAGO3:<","").replace(">","")
+					obj = {"type":3,"id":id_entity}
+					list_question_entities.append(obj)
+
+		for i in list_question_entities:
+			#print i
+			#print " "
+			collection_entities.insert(i)
+
+		question["entities"] = list_question_entities
+		collection_questions_w_entities.insert(question)
+
+		counter = counter+1
+		progreso = counter/150.0
+		t_act = time.time() - start_time
+		t_res = (1.0/progreso - 1.0)*t_act
+		print "Porcentaje: "+str(progreso*100.0)+" %"+" Restante: "+str(int(t_res/3600))+":"+str(int(t_res/60)%60)+":"+str(int(t_res)%60) + " Actual: "+str(int(t_act/3600))+":"+str(int(t_act/60)%60)+":"+str(int(t_act)%60)
+	except:
+		print "Error"
 
