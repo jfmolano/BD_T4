@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
     ////console.log("Ready")
-
+    objeto_bono = []
     url_get_consulta1 = "http://localhost:8080/info_preguntas"
     ////console.log("url_get_consulta1")
     $.ajax({
@@ -287,6 +287,7 @@ $(document).ready(function() {
     url: url_get_consulta7
     }).then(function(data) {
         var data_json = JSON.parse(data)
+        objeto_bono = data_json
         //////console.log("data: ")
         //////console.log(data_json)
         $.each(data_json, function (i, item) {
