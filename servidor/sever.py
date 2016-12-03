@@ -93,6 +93,7 @@ def info_entidad():
 @app.route('/info_geo_people', methods=['GET'])
 def info_geo_people():
 	print "Entra a servicio"
+	#Use no date collection
 	resultado = p_e_u_collection.find({"entities.enrichment.geometry":{"$exists":True}},{"_id":False})
 	l = list(resultado)
 	return dumps(l), 201
