@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, abort, make_response, request
 from flask_cors import CORS, cross_origin
 import csv
+from datetime import datetime
 from pymongo import MongoClient #pip install pymongo
 from bson.json_util import dumps
 import json
@@ -20,6 +21,7 @@ MONGODB_DB = "Grupo03"
 P_E_COLLECTION = "preguntas_entidades_taller4"
 P_E_U_COLLECTION = "preguntas_entidades_unwind_taller4"
 E_TW_COLLECTION = "entidades_tw_taller4"
+E_DB_TW_COLLECTION = "tw_y_bd_taller4"
 WORDS_COLLECTION = "preguntas_palabras_taller4"
 
 connection = MongoClient(MONGODB_SERVER, MONGODB_PORT)
@@ -27,6 +29,7 @@ db = connection[MONGODB_DB]
 p_e_collection = db[P_E_COLLECTION]
 p_e_u_collection = db[P_E_U_COLLECTION]
 e_tw_collection = db[E_TW_COLLECTION]
+e_db_tw_collection = db[E_DB_TW_COLLECTION]
 words_collection = db[WORDS_COLLECTION]
 
 
@@ -101,6 +104,34 @@ def info_tw_people():
 	l = list(resultado)
 	return dumps(l), 201
 
+@app.route('/info_tw_people_post', methods=['POST'])
+def info_tw_people_post():
+	if not request.json:
+		abort(400)
+	fini = request.json["fini"]
+	ffin = request.json["ffin"]
+	print fini
+	print ffin
+	obj_consulta = {}
+	if fini != "-" and ffin == "-":
+		obj_consulta["db"] = {"$gt":datetime.strptime(fini,'%d-%m-%Y')}
+	elif fini == "-" and ffin != "-":
+		obj_consulta["db"] = {"$lt":datetime.strptime(ffin,'%d-%m-%Y')}
+	elif fini != "-" and ffin != "-":
+		obj_consulta["db"] = {"$gt":datetime.strptime(fini,'%d-%m-%Y'),"$lt":datetime.strptime(ffin,'%d-%m-%Y')}
+	print obj_consulta
+	resultado = e_db_tw_collection.find(obj_consulta,{"_id":False})
+	l = list(resultado)
+	l_ret = []
+	for i in l:
+		if i["db"] != None:
+			try:
+				i["db"] = i["db"].strftime('%d-%m-%Y')
+			except:
+				i["db"] = None
+		l_ret.append(i)
+	return dumps(l_ret), 201
+
 @app.route('/questions_words', methods=['GET'])
 def questions_words():
 	print "Entra a servicio"
@@ -114,7 +145,7 @@ def questions_words():
 	return_list = []
 	for key in return_object:
 		if len(return_object[key])>1:
-			return_list.append({"word":key,"questions":' - '.join(return_object[key])})
+			return_list.append({"word":key,"questions":'   -   '.join(return_object[key])})
 	return dumps(return_list), 201
 
 @app.errorhandler(404)

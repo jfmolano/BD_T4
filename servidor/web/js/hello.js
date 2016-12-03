@@ -276,7 +276,7 @@ $(document).ready(function() {
                 e_list = e_list+"<li>Tweet: "+jtem.text+"<br><br></li>"
             });   
             e_list = e_list + "</ul>"
-            $('#tabla_tw').append("<tr><td style=\"width=20%\">"+item.entities.id+"</td><td style=\"width=35%\">"+item.question+"</td><td style=\"width=35%\">"+e_list+"</td><td style=\"width=10%\">"+"11/11/2016"+"</td></tr>");
+            $('#tabla_tw').append("<tr><td style=\"width=20%\">"+item.entities.id+"</td><td style=\"width=20%\">"+item.question+"</td><td style=\"width=20%\">"+item.answer_1+"</td><td style=\"width=30%\">"+e_list+"</td><td style=\"width=10%\">"+"11/11/2016"+"</td></tr>");
         });
     });
 
@@ -292,6 +292,41 @@ $(document).ready(function() {
         $.each(data_json, function (i, item) {
             $('#tabla_words_common').append("<tr><td>"+item.word+"</td></tr>");
             $('#tabla_words_common').append("<tr><td>"+item.questions+"</td></tr>");
+        });
+    });
+
+    $("#Consultar").click(function(){
+        var fini = $('#txt_FechaIni').val();
+        var ffin = $('#txt_FechaFin').val();
+        url_post = "http://localhost:8080/info_tw_people_post"
+        var jsonData = "{\"fini\":\""+fini+"\",\"ffin\":\""+ffin+"\"}";
+        console.log(url_post)
+        console.log("JSON: "+jsonData)
+        $.ajax({
+            type: "POST",
+            data: jsonData,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: url_post
+        }).then(function(data) {
+            console.log(data)
+            //var data_json = JSON.parse(data)
+            $('#tabla_tw tr').not(':first').remove();
+            $.each(data, function (i, item) {
+                var e_list = "<ul>"
+                $.each(item.tweets, function (j, jtem) {
+                    e_list = e_list+"<li>Username: "+jtem.user+"</li>"
+                    e_list = e_list+"<li>Fecha: "+jtem.date+"</li>"
+                    e_list = e_list+"<li>Tweet: "+jtem.text+"<br><br></li>"
+                });   
+                e_list = e_list + "</ul>"
+                var bd = item.db
+                if(bd == null){
+                    bd = " - "
+                }
+                console.log(bd)
+                $('#tabla_tw').append("<tr><td style=\"width=20%\">"+item.entities.id+"</td><td style=\"width=20%\">"+item.question+"</td><td style=\"width=20%\">"+item.answer_1+"</td><td style=\"width=30%\">"+e_list+"</td><td style=\"width=10%\">"+bd+"</td></tr>");
+            });
         });
     });
 });
