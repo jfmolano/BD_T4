@@ -19,11 +19,13 @@ MONGODB_PORT = 27017
 MONGODB_DB = "Grupo03"
 P_E_COLLECTION = "preguntas_entidades_taller4"
 P_E_U_COLLECTION = "preguntas_entidades_unwind_taller4"
+E_TW_COLLECTION = "entidades_tw_taller4"
 
 connection = MongoClient(MONGODB_SERVER, MONGODB_PORT)
 db = connection[MONGODB_DB]
 p_e_collection = db[P_E_COLLECTION]
 p_e_u_collection = db[P_E_U_COLLECTION]
+e_tw_collection = db[E_TW_COLLECTION]
 
 
 app = Flask(__name__)
@@ -87,6 +89,13 @@ def info_entidad():
 def info_geo_people():
 	print "Entra a servicio"
 	resultado = p_e_u_collection.find({"entities.enrichment.geometry":{"$exists":True}},{"_id":False})
+	l = list(resultado)
+	return dumps(l), 201
+
+@app.route('/info_tw_people', methods=['GET'])
+def info_tw_people():
+	print "Entra a servicio"
+	resultado = e_tw_collection.find({},{"_id":False})
 	l = list(resultado)
 	return dumps(l), 201
 

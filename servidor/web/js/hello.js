@@ -258,4 +258,25 @@ $(document).ready(function() {
               .addTo( map );
         }
     });
+
+    url_get_consulta5 = "http://localhost:8080/info_tw_people"
+    //console.log("url_get_consulta3")
+    $.ajax({
+    type: "GET",
+    url: url_get_consulta5
+    }).then(function(data) {
+        var data_json = JSON.parse(data)
+        ////console.log("data: ")
+        ////console.log(data_json)
+        $.each(data_json, function (i, item) {
+            var e_list = "<ul>"
+            $.each(item.tweets, function (j, jtem) {
+                e_list = e_list+"<li>Username: "+jtem.user+"</li>"
+                e_list = e_list+"<li>Fecha: "+jtem.date+"</li>"
+                e_list = e_list+"<li>Tweet: "+jtem.text+"<br><br></li>"
+            });   
+            e_list = e_list + "</ul>"
+            $('#tabla_tw').append("<tr><td style=\"width=20%\">"+item.entities.id+"</td><td style=\"width=35%\">"+item.question+"</td><td style=\"width=35%\">"+e_list+"</td><td style=\"width=10%\">"+"11/11/2016"+"</td></tr>");
+        });
+    });
 });
