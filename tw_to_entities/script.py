@@ -26,7 +26,7 @@ tweets_collection = db[TWEETS_COLLECTION]
 counter = 0
 start_time = time.time()
 
-resultado = entidades_collection.find({},{"_id":False})
+resultado = entidades_collection.find({},{"_id":False}).skip(1500)
 for i in resultado:
 	id_ent = i["entities"]["id"]
 	words = id_ent.split("_")

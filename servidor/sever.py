@@ -20,12 +20,14 @@ MONGODB_DB = "Grupo03"
 P_E_COLLECTION = "preguntas_entidades_taller4"
 P_E_U_COLLECTION = "preguntas_entidades_unwind_taller4"
 E_TW_COLLECTION = "entidades_tw_taller4"
+WORDS_COLLECTION = "preguntas_palabras_taller4"
 
 connection = MongoClient(MONGODB_SERVER, MONGODB_PORT)
 db = connection[MONGODB_DB]
 p_e_collection = db[P_E_COLLECTION]
 p_e_u_collection = db[P_E_U_COLLECTION]
 e_tw_collection = db[E_TW_COLLECTION]
+words_collection = db[WORDS_COLLECTION]
 
 
 app = Flask(__name__)
@@ -98,6 +100,22 @@ def info_tw_people():
 	resultado = e_tw_collection.find({},{"_id":False})
 	l = list(resultado)
 	return dumps(l), 201
+
+@app.route('/questions_words', methods=['GET'])
+def questions_words():
+	print "Entra a servicio"
+	resultado = words_collection.find({},{"_id":False})
+	return_object = {}
+	for question in resultado:
+		if not question["word"] in return_object:
+			return_object[question["word"]] = [question["question"]]
+		else:
+			return_object[question["word"]].append(question["question"])
+	return_list = []
+	for key in return_object:
+		if len(return_object[key])>1:
+			return_list.append({"word":key,"questions":' - '.join(return_object[key])})
+	return dumps(return_list), 201
 
 @app.errorhandler(404)
 def not_found(error):
