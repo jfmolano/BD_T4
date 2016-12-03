@@ -80,7 +80,7 @@ $(document).ready(function() {
                   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                   subdomains: ['a','b','c']
                 }).addTo(map);
-        markers = [
+        var markers = [
            {
              "name": "test",
              "desc": "desc",
@@ -131,8 +131,8 @@ $(document).ready(function() {
     url: url_get_consulta3
     }).then(function(data) {
         var data_json = JSON.parse(data)
-        console.log("data: ")
-        console.log(data_json)
+        //console.log("data: ")
+        //console.log(data_json)
         $.each(data_json, function (i, item) {
             //console.log(item)
             categoria = ""
@@ -164,5 +164,77 @@ $(document).ready(function() {
             e_list = e_list + "</ul>"
             $('#tabla_entidades').append("<tr><td>"+categoria+"</td><td>"+item.entities.id+"</td><td>"+e_list+"</td><td>"+item.question+"</td></tr>");
         });
+    });
+
+    url_get_consulta4 = "http://localhost:8080/info_geo_people"
+    console.log("url_get_consulta4")
+    $.ajax({
+    type: "GET",
+    url: url_get_consulta4
+    }).then(function(data) {
+        var data_json = JSON.parse(data)
+        //console.log("data: ")
+        console.log(data_json)
+        var map = L.map('mapid_people').setView([30, 0], 2);
+              // load a tile layer
+              L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+                  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                  subdomains: ['a','b','c']
+                }).addTo(map);
+        var markers = [
+           {
+             "name": "test",
+             "plac": "place",
+             "ques": "question",
+             "entities": ["e1","e2","e3"],
+             "lat": -10,
+             "lng": -10
+           }
+        ];/*
+
+        for ( var i=0; i < data_json.length; ++i ){
+            item = data_json[i]
+            var is_geo = false
+            var lat = 0
+            var lon = 0
+            var e_list = "<ul>"
+            var is_geo_loc = false
+            if("enrichment" in item.entities){
+                $.each(item.entities.enrichment, function (j, jtem) {
+                    var value = ""
+                    if('geometry' in jtem){
+                        value = jtem["id"] + " - lugar/organización"
+                        if(!is_geo_loc && jtem.lat != 0 && jtem.lon != 0){
+                            is_geo_loc = true
+                            lat = jtem.lat
+                            lon = jtem.lon
+                        }
+                    }
+                    else if(jtem["type"] == 1){
+                        value = jtem["id"] + " - personaje"
+                    }
+                    else{
+                        value = jtem["id"] + " - otro"
+                    }
+                    e_list = e_list+"<li>"+value+"<br><br></li>"
+                });       
+            }
+            e_list = e_list + "</ul>"
+        }*/
+
+
+
+        for ( var i=0; i < markers.length; ++i ){
+            entities_list = markers[i].entities
+            var e_list = "<ul>"
+            for ( var j=0; j < entities_list.length; ++j ){
+                e_list = e_list+"<li>"+entities_list[j]+"</li>"
+            }
+            e_list = e_list + "</ul>"
+           L.marker( [markers[i].lat+(Math.random()-0.5)*0.05, markers[i].lng+(Math.random()-0.5)*0.05] )
+              .bindPopup( markers[i].name + "<br><br>Lugar: " + markers[i].plac + "<br><br>Pregunta: " + markers[i].ques + "<br><br>" + e_list)
+              .addTo( map );
+        }
     });
 });

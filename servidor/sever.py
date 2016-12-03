@@ -83,6 +83,13 @@ def info_entidad():
 	l = list(resultado)
 	return dumps(l), 201
 
+@app.route('/info_geo_people', methods=['GET'])
+def info_geo_people():
+	print "Entra a servicio"
+	resultado = p_e_u_collection.find({"entities.enrichment.geometry":{"$exists":True}},{"_id":False})
+	l = list(resultado)
+	return dumps(l), 201
+
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
