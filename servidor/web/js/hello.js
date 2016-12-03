@@ -18,15 +18,29 @@ $(document).ready(function() {
             $.each(item['entities'], function (j, jtem) {
                 var value = ""
                 if('geometry' in jtem){
-                    value = jtem["id"] + " - lugar/organización"
+                    enriched = ""
+                    if ("enrichment" in jtem){
+                        if (jtem["enrichment"].length > 1){
+                            enriched = jtem["enrichment"].reduce(function(a,b){return a.id+", "+b.id;});
+                            enriched = "<br><i>Información de enriquecimiento:</i> " + enriched.replace("undefined,", "")
+                        }
+                    }
+                    value = jtem["id"] + " - lugar/organización" + enriched
                 }
                 else if(jtem["type"] == 1){
-                    value = jtem["id"] + " - personaje"
+                    enriched = ""
+                    if ("enrichment" in jtem){
+                        if (jtem["enrichment"].length > 1){
+                            enriched = jtem["enrichment"].reduce(function(a,b){return a.id+", "+b.id;});
+                            enriched = "<br><i>Información de enriquecimiento:</i> " + enriched.replace("undefined,", "")
+                        }
+                    }
+                    value = jtem["id"] + " - personaje" + enriched
                 }
                 else{
                     value = jtem["id"] + " - otro"
                 }
-                e_list = e_list+"<li>"+value+"</li>"
+                e_list = e_list+"<li>"+value+"<br><br></li>"
             });
             e_list = e_list + "</ul>"
 
@@ -57,8 +71,8 @@ $(document).ready(function() {
     url: url_get_consulta2
     }).then(function(data) {
         var data_json = JSON.parse(data)
-        console.log("data: ")
-        console.log(data_json)
+        //console.log("data: ")
+        //console.log(data_json)
         var map = L.map('mapid').setView([30, 0], 2);
               // load a tile layer
               L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -91,7 +105,7 @@ $(document).ready(function() {
              "lat": data_json[i].entities.geometry.lat,
              "lng": data_json[i].entities.geometry.lon
            }
-           console.log(obj)
+           //console.log(obj)
            if(obj.lat!=0 && obj.lon!=0){
            markers.push(obj)
             }
@@ -108,5 +122,47 @@ $(document).ready(function() {
               .bindPopup( markers[i].name + "<br><br>" + markers[i].desc + "<br><br>" + markers[i].ans + "<br><br>" + e_list)
               .addTo( map );
         }
+    });
+
+    url_get_consulta3 = "http://localhost:8080/info_entidad"
+    console.log("url_get_consulta3")
+    $.ajax({
+    type: "GET",
+    url: url_get_consulta3
+    }).then(function(data) {
+        var data_json = JSON.parse(data)
+        console.log("data: ")
+        console.log(data_json)
+        $.each(data_json, function (i, item) {
+            //console.log(item)
+            categoria = ""
+            if('geometry' in item.entities){
+                    categoria = "Lugar/Organización"
+                }
+                else if(item.entities.type == 1){
+                    categoria = "Personaje"
+                }
+                else{
+                    categoria = "Otro"
+                }
+            var e_list = "<ul>"
+            if("enrichment" in item.entities){
+                $.each(item.entities.enrichment, function (j, jtem) {
+                    var value = ""
+                    if('geometry' in jtem){
+                        value = jtem["id"] + " - lugar/organización"
+                    }
+                    else if(jtem["type"] == 1){
+                        value = jtem["id"] + " - personaje"
+                    }
+                    else{
+                        value = jtem["id"] + " - otro"
+                    }
+                    e_list = e_list+"<li>"+value+"<br><br></li>"
+                });       
+            }
+            e_list = e_list + "</ul>"
+            $('#tabla_entidades').append("<tr><td>"+categoria+"</td><td>"+item.entities.id+"</td><td>"+e_list+"</td><td>"+item.question+"</td></tr>");
+        });
     });
 });
