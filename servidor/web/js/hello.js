@@ -292,7 +292,7 @@ $(document).ready(function() {
         //////console.log(data_json)
         $.each(data_json, function (i, item) {
             $('#tg_container').append('<div style="font-size: 500%;word-break: keep-all;width:50%">');
-            console.log(item)
+            //console.log(item)
             $('#tg_container').append('<div style="color:green;">'+item.movie+"</div>");
             $.each(item.word_list, function (j, jtem) {
                 var tam = 180/14*jtem.count
@@ -352,5 +352,27 @@ $(document).ready(function() {
                 $('#tabla_tw').append("<tr><td style=\"width=20%\">"+item.entities.id+"</td><td style=\"width=20%\">"+item.question+"</td><td style=\"width=20%\">"+item.answer_1+"</td><td style=\"width=30%\">"+e_list+"</td><td style=\"width=10%\">"+bd+"</td></tr>");
             });
         });
+    });
+    hide = true
+    $("#Ver").click(function(){
+        if(hide){
+            $("#movie_trivia").css("background-color", "white");
+            hide = false
+        }
+        else{
+            $("#movie_trivia").css("background-color", "black");
+            hide = true
+        }
+    });
+    $("#Siguiente").click(function(){
+        var rand_movie = objeto_bono[Math.floor(Math.random() * objeto_bono.length)];
+        $( "#movie_trivia" ).text(rand_movie.movie);
+        var hint = ""
+        for (var i=0;i<rand_movie.word_list.length;i++){
+            console.log(rand_movie.word_list[i].word)
+            hint = hint + ", " + rand_movie.word_list[i].word
+        }
+        $( "#hint_trivia" ).text(hint);
+        console.log(rand_movie.word_list)
     });
 });
