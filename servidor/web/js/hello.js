@@ -1,18 +1,18 @@
 $(document).ready(function() {
 
-    console.log("Ready")
+    //console.log("Ready")
 
     url_get_consulta1 = "http://localhost:8080/info_preguntas"
-    console.log("url_get_consulta1")
+    //console.log("url_get_consulta1")
     $.ajax({
     type: "GET",
     url: url_get_consulta1
     }).then(function(data) {
         var data_json = JSON.parse(data)
-        //console.log("data: ")
-        //console.log(data_json)
+        ////console.log("data: ")
+        ////console.log(data_json)
         $.each(data_json, function (i, item) {
-            //console.log(item)
+            ////console.log(item)
 
             var e_list = "<ul>"
             $.each(item['entities'], function (j, jtem) {
@@ -65,14 +65,14 @@ $(document).ready(function() {
     });
 
     url_get_consulta2 = "http://localhost:8080/info_georef"
-    console.log("url_get_consulta2")
+    //console.log("url_get_consulta2")
     $.ajax({
     type: "GET",
     url: url_get_consulta2
     }).then(function(data) {
         var data_json = JSON.parse(data)
-        //console.log("data: ")
-        //console.log(data_json)
+        ////console.log("data: ")
+        ////console.log(data_json)
         var map = L.map('mapid').setView([30, 0], 2);
               // load a tile layer
               L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -105,7 +105,7 @@ $(document).ready(function() {
              "lat": data_json[i].entities.geometry.lat,
              "lng": data_json[i].entities.geometry.lon
            }
-           //console.log(obj)
+           ////console.log(obj)
            if(obj.lat!=0 && obj.lon!=0){
            markers.push(obj)
             }
@@ -125,16 +125,16 @@ $(document).ready(function() {
     });
 
     url_get_consulta3 = "http://localhost:8080/info_entidad"
-    console.log("url_get_consulta3")
+    //console.log("url_get_consulta3")
     $.ajax({
     type: "GET",
     url: url_get_consulta3
     }).then(function(data) {
         var data_json = JSON.parse(data)
-        //console.log("data: ")
-        //console.log(data_json)
+        ////console.log("data: ")
+        ////console.log(data_json)
         $.each(data_json, function (i, item) {
-            //console.log(item)
+            ////console.log(item)
             categoria = ""
             if('geometry' in item.entities){
                     categoria = "Lugar/Organización"
@@ -167,14 +167,14 @@ $(document).ready(function() {
     });
 
     url_get_consulta4 = "http://localhost:8080/info_geo_people"
-    console.log("url_get_consulta4")
+    //console.log("url_get_consulta4")
     $.ajax({
     type: "GET",
     url: url_get_consulta4
     }).then(function(data) {
         var data_json = JSON.parse(data)
-        //console.log("data: ")
-        console.log(data_json)
+        ////console.log("data: ")
+        //console.log(data_json)
         var map = L.map('mapid_people').setView([30, 0], 2);
               // load a tile layer
               L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -191,24 +191,27 @@ $(document).ready(function() {
              "lat": -10,
              "lng": -10
            }
-        ];/*
+        ];
 
         for ( var i=0; i < data_json.length; ++i ){
             item = data_json[i]
             var is_geo = false
             var lat = 0
             var lon = 0
-            var e_list = "<ul>"
             var is_geo_loc = false
+            var place_name = ""
             if("enrichment" in item.entities){
+                var entities_l = []
                 $.each(item.entities.enrichment, function (j, jtem) {
                     var value = ""
                     if('geometry' in jtem){
                         value = jtem["id"] + " - lugar/organización"
                         if(!is_geo_loc && jtem.lat != 0 && jtem.lon != 0){
                             is_geo_loc = true
-                            lat = jtem.lat
-                            lon = jtem.lon
+                            lat = jtem.geometry.lat
+                            lon = jtem.geometry.lon
+                            place_name = value
+                            console.log(jtem)
                         }
                     }
                     else if(jtem["type"] == 1){
@@ -217,13 +220,21 @@ $(document).ready(function() {
                     else{
                         value = jtem["id"] + " - otro"
                     }
-                    e_list = e_list+"<li>"+value+"<br><br></li>"
+                    entities_l.push(value)
                 });       
             }
-            e_list = e_list + "</ul>"
-        }*/
-
-
+            var obj = {
+             "name": data_json[i].entities.id,
+             "ques": data_json[i].question,
+             "plac": place_name,
+             "entities": entities_l,
+             "lat": lat,
+             "lng": lon
+           }
+           if(obj.lat!=0 && obj.lon!=0){
+           markers.push(obj)
+            }
+        }
 
         for ( var i=0; i < markers.length; ++i ){
             entities_list = markers[i].entities
@@ -232,7 +243,17 @@ $(document).ready(function() {
                 e_list = e_list+"<li>"+entities_list[j]+"</li>"
             }
             e_list = e_list + "</ul>"
-           L.marker( [markers[i].lat+(Math.random()-0.5)*0.05, markers[i].lng+(Math.random()-0.5)*0.05] )
+            console.log("markers[i]")
+            console.log(markers[i])
+            var redIcon = new L.Icon({
+              iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowSize: [41, 41]
+            });
+           L.marker( [markers[i].lat+(Math.random()-0.5)*0.05, markers[i].lng+(Math.random()-0.5)*0.05], {icon: redIcon} )
               .bindPopup( markers[i].name + "<br><br>Lugar: " + markers[i].plac + "<br><br>Pregunta: " + markers[i].ques + "<br><br>" + e_list)
               .addTo( map );
         }
