@@ -6,6 +6,7 @@ from datetime import datetime
 from pymongo import MongoClient #pip install pymongo
 from bson.json_util import dumps
 import json
+from collections import Counter
 
 with open('conf.json', 'r') as f:
     try:
@@ -148,6 +149,29 @@ def questions_words():
 		if len(return_object[key])>1:
 			return_list.append({"word":key,"questions":'   -   '.join(return_object[key])})
 	return dumps(return_list), 201
+
+@app.route('/tag_cloud', methods=['GET'])
+def tag_cloud():
+	obj = {}
+	resultado = p_e_u_collection.find({},{"_id":False})
+	for i in resultado:
+		id_ent = i["entities"]["id"]
+		movie = i["movie"]
+		if not movie in obj:
+			obj[movie] = [id_ent]
+		else:
+			obj[movie].append(id_ent)
+
+	#print obj
+	dictlist = []
+	for key, value in obj.iteritems():
+		cnt = Counter(value)
+		l = []
+		for k in cnt:
+			l.append({"word":k,"count":cnt[k]})
+		temp = {"movie":key,"word_list":l}
+		dictlist.append(temp)
+	return dumps(dictlist), 201
 
 @app.errorhandler(404)
 def not_found(error):
